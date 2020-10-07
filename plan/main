@@ -1,0 +1,7 @@
+#include <turnkey/base>
+#include <turnkey/lamp>
+
+python3-bcrypt
+
+bzip2           /* to unpack PhantomJS */
+fontconfig      /* PhantonJS dependency */
