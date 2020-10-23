@@ -4,12 +4,15 @@ DB_NAME=ninja
 DB_USER=ninja
 DB_PASS=$(mcookie)
 
-ADMIN_MAIL="admin%40example.com" # '@' encoded = '%40'
+ADMIN_USER="admin"
+ADMIN_MAIL="${ADMIN_USER}%40example.com" # '@' encoded = '%40'
 ADMIN_PASS=turnkey1
+ADMIN_FNAME="TurnKey"
+ADMIN_LNAME="Linux"
 
 SRC=/usr/local/src
 WEBROOT=/var/www/invoiceninja
-CONF=$WEBROOT/config/configuration.php
+CONF=$WEBROOT/.env
 
 LOC_SHARE=/usr/local/share
 LOC_BIN=/usr/local/bin
@@ -29,33 +32,38 @@ chmod +x $LOC_BIN/phantomjs
 rm $SRC/phantomjs-*-linux-x86_64.tar.bz2
 
 # install Invoice Ninja
-mkdir -p $WEBROOT
-unzip $SRC/invoiceninja.zip -d $WEBROOT/
-rm -f $SRC/invoiceninja.zip
-cp $(dirname $CONF)/configuration.sample.php $CONF
-chown -R www-data:www-data $WEBROOT
+mkdir -p $(dirname $WEBROOT)
+unzip $SRC/ninja-*.zip -d $(dirname $WEBROOT)
+mv $(dirname $WEBROOT)/ninja $WEBROOT
+rm -f $SRC/ninja-*.zip
 
 service mysql start
 
 mysqladmin create $DB_NAME
 mysql --batch --execute "grant all privileges on $DB_NAME.* to $DB_USER@localhost identified by '$DB_PASS'; flush privileges;"
 
-sed -i "\|\$sitename =|s|=.*|= \"TurnKey Invoice Ninja\";|" $CONF
-sed -i "\|\$dbUser=|s|=.*|=\"$DB_USER\";|" $CONF
-sed -i "\|\$dbPassword=|s|=.*|=\"$DB_PASS\";|" $CONF
-sed -i "\|\$dbDatabase=|s|=.*|=\"$DB_NAME\";|" $CONF
-sed -i "\|\$sessionpassword =|s|=.*|=\"$(mcookie)($mcookie)\";|" $CONF
+[[ ! -f "$CONF" ]] && cp $CONF.example $CONF
+
+sed -i "\|APP_URL=|s|=.*|=http://localhost|" $CONF
+sed -i "\|APP_KEY=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
+sed -i "\|DB_DATABASE=|s|=.*|=$DB_NAME|" $CONF
+sed -i "\|DB_USERNAME=|s|=.*|=$DB_USER|" $CONF
+sed -i "\|DB_PASSWORD=|s|=.*|=$DB_PASS|" $CONF
+sed -i "\|PHANTOMJS_BIN_PATH|s|^#||" $CONF
+sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
+
+chown -R www-data:www-data $WEBROOT
 
 a2dissite 000-default
 a2ensite invoiceninja
 a2enmod rewrite
 
-exit 1
 service apache2 start
 
 CURL="curl -c /tmp/cookie -b /tmp/cookie"
-$CURL localhost/install\ \
-  --data-raw "email=$ADMIN_MAIL&password=$ADMIN_PASS&firstname=Admin&lastname=User&company=TurnKey&install=Install"
+TOKEN=$($CURL http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
+$CURL localhost/setup \
+    --data-raw "app%5Burl%5D=http%3A%2F%2Flocalhost&https=0&debug=0&database%5Btype%5D%5Bhost%5D=localhost&database%5Btype%5D%5Bdatabase%5D=${DB_NAME}&database%5Btype%5D%5Busername%5D=${DB_USER}&database%5Btype%5D%5Bpassword%5D=${DB_PASS}&mail%5Bdriver%5D=sendmail&mail%5Bfrom%5D%5Bname%5D=${ADMIN_USER}&mail%5Bfrom%5D%5Baddress%5D=${ADMIN_MAIL}&mail%5Busername%5D=&mail%5Bhost%5D=&mail%5Bport%5D=&mail%5Bencryption%5D=&mail%5Bpassword%5D=&mail%5Bmailgun_domain%5D=&mail%5Bmailgun_secret%5D=&first_name=${ADMIN_FNAME}&last_name=${ADMIN_LNAME}&email=${ADMIN_MAIL}&password=${ADMIN_PASS}&terms_checkbox=0&terms_checkbox=1&privacy_checkbox=0&privacy_checkbox=1&_token=${TOKEN}"
 
 service mysql stop
 service apache2 stop

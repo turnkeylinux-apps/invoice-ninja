@@ -1,0 +1,8 @@
+#!/bin/bash -e
+# set invoice ninja admin password & email
+
+. /etc/default/inithooks
+
+[ -e $INITHOOKS_CONF ] && . $INITHOOKS_CONF
+
+$INITHOOKS_PATH/bin/invoice-ninja.py --pass="$APP_PASS" --email="$APP_EMAIL"

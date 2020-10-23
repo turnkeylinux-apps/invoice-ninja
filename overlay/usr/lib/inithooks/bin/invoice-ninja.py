@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Set Leantime admin password and email
+"""Set Invoice Ninja admin password and email
 
 Option:
     --pass=     unless provided, will ask interactively
@@ -43,16 +43,16 @@ def main():
     if not password:
         d = Dialog('TurnKey Linux - First boot configuration')
         password = d.get_password(
-            "Leantime Password",
-            "Enter new password for the Leantime 'admin' account.")
+            "Invoice Ninja Password",
+            "Enter new password for the Invoice Ninja 'admin' account.")
 
     if not email:
         if 'd' not in locals():
             d = Dialog('TurnKey Linux - First boot configuration')
 
         email = d.get_email(
-            "Leantime Email",
-            "Enter email address for the Leantime 'admin' account.",
+            "Invoice Ninja Email",
+            "Enter email address for the Invoice Ninja 'admin' account.",
             "admin@example.com")
 
     inithooks_cache.write('APP_EMAIL', email)
@@ -61,8 +61,9 @@ def main():
     hashpass = bcrypt.hashpw(password.encode('utf8'), salt).decode('utf8')
     
     m = MySQL()
-    m.execute('UPDATE leantime.zp_user SET password=%s WHERE id=1;', (hashpass,))
-    m.execute('UPDATE leantime.zp_user SET username=%s WHERE id=1;', (email,))
+    m.execute('UPDATE ninja.user SET password=%s WHERE id=1;', (hashpass,))
+    m.execute('UPDATE ninja.user SET username=%s WHERE id=1;', (email,))
+    m.execute('UPDATE ninja.user SET email=%s WHERE id=1;', (email,))
 
 
 if __name__ == "__main__":

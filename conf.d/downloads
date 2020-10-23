@@ -2,16 +2,21 @@
 
 dl() {
     [ "$FAB_HTTP_PROXY" ] && PROXY="--proxy $FAB_HTTP_PROXY"
-    cd $2; curl -L -f -O $PROXY $1; cd -
+    cd $2; curl -L -f -O -J $PROXY $1; cd -
 }
 
-VERSION=$(gh_releases invoiceninja/invoiceninja | grep 'release$' | sort -V | tail -1)
-URL="https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.zip"
+#VERSION=$(gh_releases invoiceninja/invoiceninja | grep 'release$' | sort -V | tail -1)
+#URL="https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.zip"
+#
+# Currently above downloads latest release; however v5 is still beta (but not in name...)
+# This URL will auto download latest stable:
+FILE=$(curl -sI  https://download.invoiceninja.com/ | grep location | sed "s|location: /||; s|\r||")
+URL=https://download.invoiceninja.com/$FILE
 SRC=/usr/local/src
 
 # PhantomJS
 PJS_V="2.1.1"
 PJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PJS_V-linux-x86_64.tar.bz2"
 
-dl $URL $SRC
-dl $PJS_URL $SRC
+dl $URL $SRC #/invoiceninja.zip
+dl $PJS_URL $SRC #/phantomjs-$PJS_V-linux-x86_64.tar.bz2
