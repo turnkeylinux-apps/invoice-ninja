@@ -61,9 +61,9 @@ def main():
     hashpass = bcrypt.hashpw(password.encode('utf8'), salt).decode('utf8')
     
     m = MySQL()
-    m.execute('UPDATE ninja.user SET password=%s WHERE id=1;', (hashpass,))
-    m.execute('UPDATE ninja.user SET username=%s WHERE id=1;', (email,))
-    m.execute('UPDATE ninja.user SET email=%s WHERE id=1;', (email,))
+    m.execute('UPDATE ninja.users SET password=%s WHERE id=1;', (hashpass,))
+    m.execute('UPDATE ninja.users SET username=%s WHERE id=1;', (email,))
+    m.execute('UPDATE ninja.users SET email=%s WHERE id=1;', (email,))
 
 
 if __name__ == "__main__":
