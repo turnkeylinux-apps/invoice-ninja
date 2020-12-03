@@ -42,21 +42,6 @@ service mysql start
 mysqladmin create $DB_NAME
 mysql --batch --execute "grant all privileges on $DB_NAME.* to $DB_USER@localhost identified by '$DB_PASS'; flush privileges;"
 
-[[ ! -f "$CONF" ]] && cp $CONF.example $CONF
-
-sed -i "\|APP_URL=|s|=.*|=http://localhost|" $CONF
-sed -i "\|DB_DATABASE=|s|=.*|=$DB_NAME|" $CONF
-sed -i "\|DB_USERNAME=|s|=.*|=$DB_USER|" $CONF
-sed -i "\|DB_PASSWORD=|s|=.*|=$DB_PASS|" $CONF
-sed -i "\|PHANTOMJS_BIN_PATH|s|^#||" $CONF
-sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
-
-php $WEBROOT/artisan config:cache
-php $WEBROOT/artisan key:generate --force
-php $WEBROOT/artisan config:clear
-
-chown -R www-data:www-data $WEBROOT
-
 a2dissite 000-default
 a2ensite invoiceninja
 a2enmod rewrite
@@ -66,8 +51,21 @@ service apache2 start
 sleep 1
 CURL="curl -c /tmp/cookie -b /tmp/cookie"
 TOKEN=$($CURL http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
-$CURL localhost/setup \
-    --data-raw "app%5Burl%5D=http%3A%2F%2Flocalhost&https=0&debug=0&database%5Btype%5D%5Bhost%5D=localhost&database%5Btype%5D%5Bdatabase%5D=${DB_NAME}&database%5Btype%5D%5Busername%5D=${DB_USER}&database%5Btype%5D%5Bpassword%5D=${DB_PASS}&mail%5Bdriver%5D=sendmail&mail%5Bfrom%5D%5Bname%5D=${ADMIN_USER}&mail%5Bfrom%5D%5Baddress%5D=${ADMIN_MAIL}&mail%5Busername%5D=&mail%5Bhost%5D=&mail%5Bport%5D=&mail%5Bencryption%5D=&mail%5Bpassword%5D=&mail%5Bmailgun_domain%5D=&mail%5Bmailgun_secret%5D=&first_name=${ADMIN_FNAME}&last_name=${ADMIN_LNAME}&email=${ADMIN_MAIL}&password=${ADMIN_PASS}&terms_checkbox=0&terms_checkbox=1&privacy_checkbox=0&privacy_checkbox=1&_token=${TOKEN}"
+sleep 1
+$CURL localhost/setup --data-raw "app%5Burl%5D=http%3A%2F%2Flocalhost&https=0&debug=0&database%5Btype%5D%5Bhost%5D=localhost&database%5Btype%5D%5Bdatabase%5D=${DB_NAME}&database%5Btype%5D%5Busername%5D=${DB_USER}&database%5Btype%5D%5Bpassword%5D=${DB_PASS}&mail%5Bdriver%5D=mail&mail%5Bfrom%5D%5Bname%5D=&mail%5Bfrom%5D%5Baddress%5D=${ADMIN_MAIL}&mail%5Busername%5D=&mail%5Bhost%5D=&mail%5Bport%5D=587&mail%5Bencryption%5D=tls&mail%5Bpassword%5D=&mail%5Bmailgun_domain%5D=&mail%5Bmailgun_secret%5D=&first_name=${ADMIN_FNAME}&last_name=${ADMIN_LNAME}&email=${ADMIN_MAIL}&password=${ADMIN_PASS}&terms_checkbox=0&terms_checkbox=1&privacy_checkbox=0&privacy_checkbox=1&_token=${TOKEN}"
+sleep 1
+
+sed -i "/^PHANTOMJS_SECRET=.*$/a PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs" $CONF
+sed -i "\|^PHANTOMJS_CLOUD_KEY|s|^|#|" $CONF
+sed -i "\|^PHANTOMJS_SECRET|s|^|#|" $CONF
+
+sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
+
+php $WEBROOT/artisan config:cache
+php $WEBROOT/artisan key:generate --force
+php $WEBROOT/artisan config:clear
+
+chown -R www-data:www-data $WEBROOT
 
 service mysql stop
 service apache2 stop

@@ -1,6 +1,7 @@
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  
 turnkey-invoice-ninja-16.0 (1) turnkey; urgency=low
 
-  * Initial release includes Invoice Ninja - v4.5.19; installed from zip;
+  * Initial release includes Invoice Ninja - v4.5.21; installed from zip;
     based on TurnKey LAMP.
 
   * SSL/TLS cyphers to provide "Intermediate" browser/client support
@@ -11,4 +12,4 @@ turnkey-invoice-ninja-16.0 (1) turnkey; urgency=low
   * Note: Please refer to turnkey-core's changelog for changes common to all
     appliances. Here we only describe changes specific to this appliance.
 
- -- Jeremy Davis <jeremy@turnkeylinux.org>  Tue, 27 Oct 2020 11:40:31 +1100
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Thu, 03 Dec 2020 19:07:27 +1100
