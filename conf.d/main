@@ -37,6 +37,8 @@ unzip $SRC/ninja-*.zip -d $(dirname $WEBROOT)
 mv $(dirname $WEBROOT)/ninja $WEBROOT
 rm -f $SRC/ninja-*.zip
 
+chown -R www-data:www-data $WEBROOT
+
 service mysql start
 
 mysqladmin create $DB_NAME
@@ -58,7 +60,6 @@ sleep 1
 sed -i "/^PHANTOMJS_SECRET=.*$/a PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs" $CONF
 sed -i "\|^PHANTOMJS_CLOUD_KEY|s|^|#|" $CONF
 sed -i "\|^PHANTOMJS_SECRET|s|^|#|" $CONF
-
 sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
 
 php $WEBROOT/artisan config:cache

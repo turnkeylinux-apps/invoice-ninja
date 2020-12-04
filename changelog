@@ -1,4 +1,3 @@
- -- Jeremy Davis <jeremy@turnkeylinux.org>  
 turnkey-invoice-ninja-16.0 (1) turnkey; urgency=low
 
   * Initial release includes Invoice Ninja - v4.5.21; installed from zip;
