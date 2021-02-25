@@ -7,3 +7,8 @@ bzip2           /* to unpack PhantomJS */
 fontconfig      /* PhantonJS dependency */
 
 php-curl
+
+/* Invoice Ninja Dependencies */
+php-gd
+php-xml
+php-mbstring
