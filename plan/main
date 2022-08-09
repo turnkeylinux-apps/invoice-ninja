@@ -12,3 +12,5 @@ php-curl
 php-gd
 php-xml
 php-mbstring
+php-gmp
+php-zip
