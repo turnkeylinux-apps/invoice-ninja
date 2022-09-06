@@ -10,13 +10,7 @@ dl() {
 #
 # Currently above downloads latest release; however v5 is still beta (but not in name...)
 # This URL will auto download latest stable:
-FILE=$(curl -sI  https://download.invoiceninja.com/ | sed -n "/Location: /s/.*: \(.*\)\r/\1/p")
-URL=https://download.invoiceninja.com$FILE
+URL=https://github.com/invoiceninja/invoiceninja/releases/download/v5.5.18/invoiceninja.zip
 SRC=/usr/local/src
 
-# PhantomJS
-PJS_V="2.1.1"
-PJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-$PJS_V-linux-x86_64.tar.bz2"
-
 dl $URL $SRC #/invoiceninja.zip
-dl $PJS_URL $SRC #/phantomjs-$PJS_V-linux-x86_64.tar.bz2

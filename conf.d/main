@@ -5,10 +5,9 @@ DB_USER=ninja
 DB_PASS=$(mcookie)
 
 ADMIN_USER="admin"
-ADMIN_MAIL="${ADMIN_USER}%40example.com" # '@' encoded = '%40'
+ADMIN_MAIL="noreply%40turnkeylinux.org" # '@' encoded = '%40'
 ADMIN_PASS=turnkey1
-ADMIN_FNAME="TurnKey"
-ADMIN_LNAME="Linux"
+ADMIN_FNAME="TurnKey" ADMIN_LNAME="Linux"
 
 SRC=/usr/local/src
 WEBROOT=/var/www/invoiceninja
@@ -17,25 +16,10 @@ CONF=$WEBROOT/.env
 LOC_SHARE=/usr/local/share
 LOC_BIN=/usr/local/bin
 
-# install PhantomJS locally
-tar xf $SRC/phantomjs-*-linux-x86_64.tar.bz2 -C $LOC_SHARE
-cat > $LOC_BIN/phantomjs <<EOF
-#!/bin/sh -e
-
-# Wrapper script to work around PhantomJS bug with Buster OpenSSL;
-# e.g.: https://github.com/bazelbuild/rules_closure/issues/351
-
-export OPENSSL_CONF=/etc/ssl
-$LOC_SHARE/phantomjs-*-linux-x86_64/bin/phantomjs "\$@"
-EOF
-chmod +x $LOC_BIN/phantomjs
-rm $SRC/phantomjs-*-linux-x86_64.tar.bz2
-
 # install Invoice Ninja
-mkdir -p $(dirname $WEBROOT)
-unzip $SRC/ninja-*.zip -d $(dirname $WEBROOT)
-mv $(dirname $WEBROOT)/ninja $WEBROOT
-rm -f $SRC/ninja-*.zip
+mkdir -p $WEBROOT
+unzip $SRC/invoiceninja.zip -d $WEBROOT
+rm -f $SRC/invoiceninja.zip
 
 chown -R www-data:www-data $WEBROOT
 
@@ -50,23 +34,51 @@ a2enmod rewrite
 
 service apache2 start
 
-sleep 1
-CURL="curl -c /tmp/cookie -b /tmp/cookie"
-TOKEN=$($CURL http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
-sleep 1
-$CURL localhost/setup --data-raw "app%5Burl%5D=http%3A%2F%2Flocalhost&https=0&debug=0&database%5Btype%5D%5Bhost%5D=localhost&database%5Btype%5D%5Bdatabase%5D=${DB_NAME}&database%5Btype%5D%5Busername%5D=${DB_USER}&database%5Btype%5D%5Bpassword%5D=${DB_PASS}&mail%5Bdriver%5D=mail&mail%5Bfrom%5D%5Bname%5D=&mail%5Bfrom%5D%5Baddress%5D=${ADMIN_MAIL}&mail%5Busername%5D=&mail%5Bhost%5D=&mail%5Bport%5D=587&mail%5Bencryption%5D=tls&mail%5Bpassword%5D=&mail%5Bmailgun_domain%5D=&mail%5Bmailgun_secret%5D=&first_name=${ADMIN_FNAME}&last_name=${ADMIN_LNAME}&email=${ADMIN_MAIL}&password=${ADMIN_PASS}&terms_checkbox=0&terms_checkbox=1&privacy_checkbox=0&privacy_checkbox=1&_token=${TOKEN}"
-sleep 1
-
-sed -i "/^PHANTOMJS_SECRET=.*$/a PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs" $CONF
-sed -i "\|^PHANTOMJS_CLOUD_KEY|s|^|#|" $CONF
-sed -i "\|^PHANTOMJS_SECRET|s|^|#|" $CONF
+cp $WEBROOT/.env.example $CONF
 sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
+sed -i 's/^APP_DEBUG=.*/APP_DEBUG=true/g' $CONF # REMOVE ME
 
-php $WEBROOT/artisan config:cache
+sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
+sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
+sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
+
+#php $WEBROOT/artisan config:cache
 php $WEBROOT/artisan key:generate --force
 php $WEBROOT/artisan config:clear
+php $WEBROOT/artisan migrate --force
+php $WEBROOT/artisan optimize
 
 chown -R www-data:www-data $WEBROOT
+find $WEBROOT -type d -exec chmod 755 {} \;
+
+sleep 10
+CURL="curl -c /tmp/cookie -b /tmp/cookie"
+TOKEN=$($CURL http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
+sleep 10
+$CURL 'http://localhost/setup' -X POST --data-raw "\
+_token=$TOKEN\
+&url=https%3A%2F%2Fexample.com\
+&https=on\
+&db_driver=MySQL\
+&db_host=localhost\
+&db_port=3306\
+&db_database=$DB_NAME\
+&db_username=$DB_USER\
+&db_password=$DB_PASS\
+&mail_driver=log\
+&mail_name=&mail_address=&mail_username=&mail_host=&mail_port=\
+&encryption=tls\
+&mail_password=\
+&first_name=$ADMIN_FNAME\
+&last_name=$ADMIN_LNAME\
+&email=$ADMIN_MAIL\
+&password=$ADMIN_PASS\
+&terms_of_service=on\
+&privacy_policy=on"
+
+chown -R www-data:www-data $WEBROOT
+
+echo '  * * * * * www-data php /var/www/invoiceninja/artisan schedule:run >> /dev/null 2>&1' >> /etc/cron.d/invoice-ninja
 
 service mysql stop
 service apache2 stop

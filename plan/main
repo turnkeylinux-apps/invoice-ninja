@@ -1,5 +1,6 @@
 #include <turnkey/base>
-#include <turnkey/lamp>
+#include <turnkey/lamp81>
+#include <turnkey/nodejs>
 
 python3-bcrypt
 
@@ -9,8 +10,12 @@ fontconfig      /* PhantonJS dependency */
 php-curl
 
 /* Invoice Ninja Dependencies */
-php-gd
-php-xml
-php-mbstring
-php-gmp
-php-zip
+php8.1-gd
+php8.1-xml
+php8.1-mbstring
+php8.1-gmp
+php8.1-zip
+php8.1-curl
+php8.1-bcmath
+php8.1-pdo
+php8.1-fileinfo

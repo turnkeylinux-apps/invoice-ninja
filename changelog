@@ -1,3 +1,16 @@
+turnkey-invoice-ninja-17.0 (1) turnkey; urgency=low
+
+  * Invoice Ninja - v5.5.18 installed from zip (closes #1572)
+
+  * Includes PHP 7.4.
+
+  * Updated all relevant Debian packages to Bullseye/11 versions
+
+  * Note: Please refer to turnkey-core's 17.0 changelog for changes common to all
+    appliances. Here we only describe changes specific to this appliance.
+
+ -- Stefan Davis <stefan@turnkeylinux.org>  Tue, 06 Sep 2022 02:05:13 +0000
+
 turnkey-invoice-ninja-16.1 (1) turnkey; urgency=low
 
   * Invoice Ninja - v4.5.33 installed from zip
@@ -7,7 +20,7 @@ turnkey-invoice-ninja-16.1 (1) turnkey; urgency=low
   * Note: Please refer to turnkey-core's 16.1 changelog for changes common to
     all appliances. Here we only describe changes specific to this appliance. 
 
--- Ken Robinson <ken@turnkeylinux.org>  Wed, 24 Feb 2021 21:14:58 -0500
+ -- Ken Robinson <ken@turnkeylinux.org>  Wed, 24 Feb 2021 21:14:58 -0500
 
 turnkey-invoice-ninja-16.0 (1) turnkey; urgency=low
 
