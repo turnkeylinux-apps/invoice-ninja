@@ -11,8 +11,8 @@ import getopt
 import bcrypt
 from mysqlconf import MySQL
 
-from dialog_wrapper import Dialog
-import inithooks_cache
+from libinithooks.dialog_wrapper import Dialog
+from libinithooks import inithooks_cache
 
 
 def usage(s=None):
@@ -62,7 +62,6 @@ def main():
     
     m = MySQL()
     m.execute('UPDATE ninja.users SET password=%s WHERE id=1;', (hashpass,))
-    m.execute('UPDATE ninja.users SET username=%s WHERE id=1;', (email,))
     m.execute('UPDATE ninja.users SET email=%s WHERE id=1;', (email,))
 
 

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-php /var/www/invoiceninja/artisan ninja:send-invoices
-php /var/www/invoiceninja/artisan ninja:send-reminders
