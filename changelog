@@ -1,8 +1,8 @@
 turnkey-invoice-ninja-17.0 (1) turnkey; urgency=low
 
-  * Invoice Ninja - v5.5.18 installed from zip (closes #1572)
+  * Invoice Ninja - v5.5.23 installed from zip (closes #1572)
 
-  * Includes PHP 7.4.
+  * Includes PHP 8.1.
 
   * Updated all relevant Debian packages to Bullseye/11 versions
 
