@@ -38,6 +38,10 @@ sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 
+# install snappdf library and make it default for PDF generation
+runuser -l www-data -s /bin/bash -c "$WEBROOT/vendor/bin/snappdf download"
+sed -i "\|^PDF_GENERATOR|s|=.*|=snappdf|" $CONF
+
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
 
@@ -72,8 +76,6 @@ _token=$TOKEN\
 &password=$ADMIN_PASS\
 &terms_of_service=on\
 &privacy_policy=on"
-
-chown -R www-data:www-data $WEBROOT
 
 echo '  * * * * * www-data php /var/www/invoiceninja/artisan schedule:run >> /dev/null 2>&1' >> /etc/cron.d/invoice-ninja
 
