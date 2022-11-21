@@ -20,8 +20,6 @@ mkdir -p $WEBROOT
 unzip $SRC/invoiceninja.zip -d $WEBROOT
 rm -f $SRC/invoiceninja.zip
 
-chown -R www-data:www-data $WEBROOT
-
 service mysql start
 
 mysqladmin create $DB_NAME
@@ -40,13 +38,15 @@ sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 
-php $WEBROOT/artisan key:generate --force
-php $WEBROOT/artisan config:clear
-php $WEBROOT/artisan migrate --force
-php $WEBROOT/artisan optimize
-
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
+
+sed -i "\|^export WEBROOT=|s|=.*|=${WEBROOT}|" /usr/local/bin/turnkey-artisan
+
+turnkey-artisan key:generate --force
+turnkey-artisan config:clear
+turnkey-artisan migrate --force
+turnkey-artisan optimize
 
 sleep 10
 CURL="curl -c /tmp/cookie -b /tmp/cookie"
