@@ -38,13 +38,14 @@ sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 
+chown -R www-data:www-data $WEBROOT
+find $WEBROOT -type d -exec chmod 755 {} \;
+
 # install snappdf library and make it default for PDF generation
 runuser -l www-data -s /bin/bash -c "$WEBROOT/vendor/bin/snappdf download"
 sed -i "\|^PDF_GENERATOR|s|=.*|=snappdf|" $CONF
 
-chown -R www-data:www-data $WEBROOT
-find $WEBROOT -type d -exec chmod 755 {} \;
-
+# set up turnkey-artisan
 sed -i "\|^export WEBROOT=|s|=.*|=${WEBROOT}|" /usr/local/bin/turnkey-artisan
 
 turnkey-artisan key:generate --force
