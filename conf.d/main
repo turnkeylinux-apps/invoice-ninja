@@ -6,7 +6,8 @@ DB_PASS=$(mcookie)
 
 ADMIN_MAIL="noreply%40turnkeylinux.org" # '@' encoded = '%40'
 ADMIN_PASS=turnkey1
-ADMIN_FNAME="TurnKey" ADMIN_LNAME="Linux"
+ADMIN_FNAME="TurnKey"
+ADMIN_LNAME="Linux"
 
 SRC=/usr/local/src
 WEBROOT=/var/www/invoiceninja
@@ -37,6 +38,13 @@ sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
 sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
+
+# configure email via system postfix
+sed -i "s/^MAIL_MAILER=.*/MAIL_MAILER=sendmail/g" $CONF
+sed -i "s/^MAIL_HOST=.*/MAIL_HOST=localhost/g" $CONF
+sed -i "s/^MAIL_PORT=.*/MAIL_PORT=25/g" $CONF
+sed -i "s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS='admin@example.com'/g" $CONF
+sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Leantime'/g" $CONF
 
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
