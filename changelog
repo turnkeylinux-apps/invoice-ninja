@@ -5,7 +5,7 @@ turnkey-invoice-ninja-17.2 (1) turnkey; urgency=low
 
   * Include turnkey-artisan helper script.
 
-  * Bump PHP memory limit to 512MB (recommended Leantime min RAM).
+  * Bump PHP memory limit to 512MB (recommended Invoice Ninja min RAM).
 
   * Install and use SnapPDF for PDF generation.
 
