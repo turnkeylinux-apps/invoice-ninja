@@ -5,4 +5,4 @@
 
 [ -e $INITHOOKS_CONF ] && . $INITHOOKS_CONF
 
-$INITHOOKS_PATH/bin/invoice-ninja.py --pass="$APP_PASS" --email="$APP_EMAIL"
+$INITHOOKS_PATH/bin/invoice-ninja.py --pass="$APP_PASS" --email="$APP_EMAIL" --domain="$APP_DOMAIN"
