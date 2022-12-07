@@ -1,3 +1,24 @@
+turnkey-invoice-ninja-17.2 (1) turnkey; urgency=low
+
+  * Update build code to always install latest Invoice Ninja release.
+    Current release includes: Invoice Ninja v5.5.46
+
+  * Include turnkey-artisan helper script.
+
+  * Bump PHP memory limit to 512MB (recommended Leantime min RAM).
+
+  * Install and use SnapPDF for PDF generation.
+
+  * Ensure that UPDATE_SECRET is regnerated on firtboot.
+
+  * Ensure correct permissions on webroot.
+
+  * Configure email to send via local postfix.
+
+  * Add inithook to set APP_DOMAIN.
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Wed, 07 Dec 2022 05:00:55 +0000
+
 turnkey-invoice-ninja-17.1 (1) turnkey; urgency=low
 
   * Updated all Debian packages to latest.
