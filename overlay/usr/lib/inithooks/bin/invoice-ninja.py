@@ -33,7 +33,7 @@ def usage(s=None):
 def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], "h",
-                                       ['help', 'pass=', 'email='])
+                                       ['help', 'pass=', 'email=', 'domain='])
     except getopt.GetoptError as e:
         usage(e)
 
@@ -47,7 +47,7 @@ def main():
             password = val
         elif opt == '--email':
             email = val
-        elif opt == '--domain'
+        elif opt == '--domain':
             domain = val
 
     if not password:
@@ -87,15 +87,17 @@ def main():
     else:
         url = f"https://{domain.rstrip('/')}"
         email_domain = domain.rstrip('/')
+    if email_domain.startswith('www.'):
+        email_domain = email_domain[4:]
 
     conf = "/var/www/invoiceninja/.env"
     lines = []
     with open(conf) as fob:
         for line in fob:
             if line.startswith('APP_URL='):
-                line = f"APP_URL={url}"
+                line = f"APP_URL={url}\n"
             elif line.startswith('MAIL_FROM_ADDRESS='):
-                line = f"MAIL_FROM_ADDRESS='ninja@{email_domain}'"
+                line = f"MAIL_FROM_ADDRESS='ninja@{email_domain}'\n"
             lines.append(line)
     with open(conf, 'w') as fob:
         fob.writelines(lines)
