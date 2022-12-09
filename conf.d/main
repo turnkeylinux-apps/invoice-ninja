@@ -42,6 +42,7 @@ sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=database/g" $CONF
 sed -i "/^QUEUE_CONNECTION/ a INTERNAL_QUEUE_ENABLED=false" $CONF
 
+touch $WEBROOT/worker.log
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
 
