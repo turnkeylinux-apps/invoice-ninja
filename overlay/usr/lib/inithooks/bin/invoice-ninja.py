@@ -71,7 +71,7 @@ def main():
 
         domain = d.get_input(
             "Invoice Ninja Domain",
-            "Enter the domain to serve Invoice Ninja.\n"
+            "Enter the domain to serve Invoice Ninja.\n\n"
             "To use plain HTTP - prefix with 'http://'",
             DEFAULT_DOMAIN)
 
