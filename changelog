@@ -19,7 +19,9 @@ turnkey-invoice-ninja-17.2 (1) turnkey; urgency=low
 
   * Provide Invoice Ninja Queue processing via supervisord workers.
 
- -- Jeremy Davis <jeremy@turnkeylinux.org>  Fri, 09 Dec 2022 10:17:02 +0000
+  * Remove redundant dependencies (mostly nodejs & phantonjs deps).
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Fri, 09 Dec 2022 11:08:29 +0000
 
 turnkey-invoice-ninja-17.1 (1) turnkey; urgency=low
 

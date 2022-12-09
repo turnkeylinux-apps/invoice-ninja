@@ -1,13 +1,7 @@
 #include <turnkey/base>
 #include <turnkey/lamp81>
-#include <turnkey/nodejs>
 
 python3-bcrypt
-
-bzip2           /* to unpack PhantomJS */
-fontconfig      /* PhantonJS dependency */
-
-php-curl
 
 /* Invoice Ninja Dependencies */
 php8.1-gd
