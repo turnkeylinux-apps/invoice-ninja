@@ -17,7 +17,9 @@ turnkey-invoice-ninja-17.2 (1) turnkey; urgency=low
 
   * Add inithook to set APP_DOMAIN.
 
- -- Jeremy Davis <jeremy@turnkeylinux.org>  Wed, 07 Dec 2022 05:00:55 +0000
+  * Provide Invoice Ninja Queue processing via supervisord workers.
+
+ -- Jeremy Davis <jeremy@turnkeylinux.org>  Fri, 09 Dec 2022 10:17:02 +0000
 
 turnkey-invoice-ninja-17.1 (1) turnkey; urgency=low
 

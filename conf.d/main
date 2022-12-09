@@ -35,10 +35,12 @@ service apache2 start
 cp $WEBROOT/.env.example $CONF
 sed -i "\|APP_NAME=|s|=.*|='TurnKey Invoice Ninja'|" $CONF
 sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
-
 sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
+
+sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=database/g" $CONF
+sed -i "/^QUEUE_CONNECTION/ a INTERNAL_QUEUE_ENABLED=false" $CONF
 
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;

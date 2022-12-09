@@ -19,3 +19,5 @@ php8.1-curl
 php8.1-bcmath
 php8.1-pdo
 php8.1-fileinfo
+
+supervisor
