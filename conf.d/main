@@ -6,7 +6,8 @@ DB_PASS=$(mcookie)
 
 ADMIN_MAIL="noreply%40turnkeylinux.org" # '@' encoded = '%40'
 ADMIN_PASS=turnkey1
-ADMIN_FNAME="TurnKey" ADMIN_LNAME="Linux"
+ADMIN_FNAME="TurnKey"
+ADMIN_LNAME="Linux"
 
 SRC=/usr/local/src
 WEBROOT=/var/www/invoiceninja
@@ -20,8 +21,6 @@ mkdir -p $WEBROOT
 unzip $SRC/invoiceninja.zip -d $WEBROOT
 rm -f $SRC/invoiceninja.zip
 
-chown -R www-data:www-data $WEBROOT
-
 service mysql start
 
 mysqladmin create $DB_NAME
@@ -34,19 +33,30 @@ a2enmod rewrite
 service apache2 start
 
 cp $WEBROOT/.env.example $CONF
+sed -i "\|APP_NAME=|s|=.*|='TurnKey Invoice Ninja'|" $CONF
 sed -i "\|API_SECRET=|s|=.*|=$(mcookie)$(mcookie)|" $CONF
-
 sed -i "s/^DB_DATABASE=.*/DB_DATABASE=$DB_NAME/g" $CONF
 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=$DB_USER/g" $CONF
 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 
-php $WEBROOT/artisan key:generate --force
-php $WEBROOT/artisan config:clear
-php $WEBROOT/artisan migrate --force
-php $WEBROOT/artisan optimize
+sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=database/g" $CONF
+sed -i "/^QUEUE_CONNECTION/ a INTERNAL_QUEUE_ENABLED=false" $CONF
 
+touch $WEBROOT/worker.log
 chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
+
+# install snappdf library and make it default for PDF generation
+runuser -l www-data -s /bin/bash -c "$WEBROOT/vendor/bin/snappdf download"
+sed -i "\|^PDF_GENERATOR|s|=.*|=snappdf|" $CONF
+
+# set up turnkey-artisan
+sed -i "\|^export WEBROOT=|s|=.*|=${WEBROOT}|" /usr/local/bin/turnkey-artisan
+
+turnkey-artisan key:generate --force
+turnkey-artisan config:clear
+turnkey-artisan migrate --force
+turnkey-artisan optimize
 
 sleep 10
 CURL="curl -c /tmp/cookie -b /tmp/cookie"
@@ -73,9 +83,14 @@ _token=$TOKEN\
 &terms_of_service=on\
 &privacy_policy=on"
 
-chown -R www-data:www-data $WEBROOT
-
 echo '  * * * * * www-data php /var/www/invoiceninja/artisan schedule:run >> /dev/null 2>&1' >> /etc/cron.d/invoice-ninja
+
+# configure email via system postfix - needs to be done post-install to ensure it's not overwritten
+sed -i "s/^MAIL_MAILER=.*/MAIL_MAILER=sendmail/g" $CONF
+sed -i "s/^MAIL_HOST=.*/MAIL_HOST=localhost/g" $CONF
+sed -i "s/^MAIL_PORT=.*/MAIL_PORT=25/g" $CONF
+sed -i "s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS='admin@example.com'/g" $CONF
+sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
 
 service mysql stop
 service apache2 stop
