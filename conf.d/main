@@ -92,5 +92,10 @@ sed -i "s/^MAIL_PORT=.*/MAIL_PORT=25/g" $CONF
 sed -i "s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS='admin@example.com'/g" $CONF
 sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
 
+# test PDF generation
+cd $WEBROOT
+./vendor/bin/snappdf convert --html "<h1>Hello world!</h1>" test.pdf
+rm test.pdf
+
 service mysql stop
 service apache2 stop
