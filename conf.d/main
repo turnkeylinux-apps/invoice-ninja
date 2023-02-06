@@ -93,6 +93,9 @@ sed -i "s/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=\"\"/g" $CONF
 sed -i "s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS='admin@example.com'/g" $CONF
 sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
 
+# Add API_SECRET to .env so it's ready to go - inithook will offer to set it (if left blank it's ignored)
+sed -i "/^APP_URL/a API_SECRET=" $CONF
+
 # test PDF generation
 cd $WEBROOT
 ./vendor/bin/snappdf convert --html "<h1>Hello world!</h1>" test.pdf
