@@ -83,14 +83,27 @@ _token=$TOKEN\
 &terms_of_service=on\
 &privacy_policy=on"
 
-echo '  * * * * * www-data php /var/www/invoiceninja/artisan schedule:run >> /dev/null 2>&1' >> /etc/cron.d/invoice-ninja
+cat > /etc/cron.d/invoice-ninja  <<EOF
+# TurnKey Invoice Ninja cron job
+# runs turnkey-artisan as root (which runs 'php artisan' as www-data)
+  * * * * * root /usr/local/bin/turnkey-artisan schedule:run >> /dev/null 2>&1
+EOF
 
 # configure email via system postfix - needs to be done post-install to ensure it's not overwritten
 sed -i "s/^MAIL_MAILER=.*/MAIL_MAILER=sendmail/g" $CONF
 sed -i "s/^MAIL_HOST=.*/MAIL_HOST=localhost/g" $CONF
 sed -i "s/^MAIL_PORT=.*/MAIL_PORT=25/g" $CONF
+sed -i "s/^MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=\"\"/g" $CONF
 sed -i "s/^MAIL_FROM_ADDRESS=.*/MAIL_FROM_ADDRESS='admin@example.com'/g" $CONF
 sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
+
+# Add API_SECRET to .env so it's ready to go - inithook will offer to set it (if left blank it's ignored)
+sed -i "/^APP_URL/a API_SECRET=" $CONF
+
+# test PDF generation
+cd $WEBROOT
+./vendor/bin/snappdf convert --html "<h1>Hello world!</h1>" test.pdf
+rm test.pdf
 
 service mysql stop
 service apache2 stop
