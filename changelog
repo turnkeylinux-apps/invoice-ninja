@@ -1,3 +1,9 @@
+turnkey-invoice-ninja-18.0 (1) turnkey; urgency=low
+
+  * Rebuild with latest Invoice-Ninja: v5.6.x.
+
+ -- Stefan Davis <stefan@turnkeylinux.org>  Wed, 16 Aug 2023 01:27:51 +0000
+
 turnkey-invoice-ninja-17.4 (1) turnkey; urgency=low
 
   * Rebuild with latest Invoice-Ninja: v5.5.x.
