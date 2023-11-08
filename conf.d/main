@@ -86,7 +86,7 @@ _token=$TOKEN\
 cat > /etc/cron.d/invoice-ninja  <<EOF
 # TurnKey Invoice Ninja cron job
 # runs turnkey-artisan as root (which runs 'php artisan' as www-data)
-  * * * * * root /usr/local/bin/turnkey-artisan schedule:run >> /dev/null 2>&1
+  * * * * * root cd /var/www/invoiceninja && /usr/local/bin/turnkey-artisan schedule:run >> /dev/null 2>&1
 EOF
 
 # configure email via system postfix - needs to be done post-install to ensure it's not overwritten
