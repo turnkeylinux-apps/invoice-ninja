@@ -6,7 +6,7 @@ dl() {
 }
 
 VERSION=$(gh_releases invoiceninja/invoiceninja | sort --version-sort | tail -1)
-URL=https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.zip
+URL=https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.tar.gz
 SRC=/usr/local/src
 
 dl $URL $SRC #/invoiceninja.zip

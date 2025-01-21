@@ -18,8 +18,8 @@ LOC_BIN=/usr/local/bin
 
 # install Invoice Ninja
 mkdir -p $WEBROOT
-unzip $SRC/invoiceninja.zip -d $WEBROOT
-rm -f $SRC/invoiceninja.zip
+tar -xvf $SRC/invoiceninja.tar.gz -C $WEBROOT/..
+rm -f $SRC/invoiceninja.tar.gz
 
 service mysql start
 
@@ -47,6 +47,7 @@ chown -R www-data:www-data $WEBROOT
 find $WEBROOT -type d -exec chmod 755 {} \;
 
 # install snappdf library and make it default for PDF generation
+chmod +x "$WEBROOT/vendor/bin/snappdf"
 runuser -l www-data -s /bin/bash -c "$WEBROOT/vendor/bin/snappdf download"
 sed -i "\|^PDF_GENERATOR|s|=.*|=snappdf|" $CONF
 
