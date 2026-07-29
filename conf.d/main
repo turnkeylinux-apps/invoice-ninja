@@ -18,7 +18,7 @@ LOC_BIN=/usr/local/bin
 
 # install Invoice Ninja
 mkdir -p $WEBROOT
-tar -xvf $SRC/invoiceninja.tar.gz -C $WEBROOT/..
+tar -xvf $SRC/invoiceninja.tar.gz -C $WEBROOT/
 rm -f $SRC/invoiceninja.tar.gz
 
 service mysql start
