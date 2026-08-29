@@ -5,4 +5,6 @@
 
 [ -e $INITHOOKS_CONF ] && . $INITHOOKS_CONF
 
-$INITHOOKS_PATH/bin/invoice-ninja.py --pass="$APP_PASS" --email="$APP_EMAIL" --domain="$APP_DOMAIN"
+printf '%s\n' "$APP_PASS" | \
+    $INITHOOKS_PATH/bin/invoice-ninja.py --pass-stdin \
+        --email="$APP_EMAIL" --domain="$APP_DOMAIN"
