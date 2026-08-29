@@ -1,12 +1,21 @@
-#!/bin/bash -ex
+#!/bin/bash -eux
 
-dl() {
-    [ "$FAB_HTTP_PROXY" ] && PROXY="--proxy $FAB_HTTP_PROXY"
-    cd $2; curl -L -f -O -J $PROXY $1; cd -
-}
-
-VERSION=$(gh_releases invoiceninja/invoiceninja | sort --version-sort | tail -1)
-URL=https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.tar.gz
+VERSION=v5.13.36
+INVOICE_SHA256=e10bea262a57b947c4f6b3a3c29bbe54e9efa09322f34dc3c0294bf8ca8007b8
+SNAPPDF_SHA256=bc241a3a17df91dff21d57326ce5c8bf6f8ef55b8384d94e0c1007892fba2868
 SRC=/usr/local/src
 
-dl $URL $SRC #/invoiceninja.zip
+dl() {
+    local proxy_args=()
+    [ -n "${FAB_HTTP_PROXY:-}" ] && proxy_args=(--proxy "$FAB_HTTP_PROXY")
+    curl --proto '=https' --tlsv1.2 -L -f "${proxy_args[@]}" "$1" -o "$2"
+}
+
+URL=https://github.com/invoiceninja/invoiceninja/releases/download/$VERSION/invoiceninja.tar.gz
+SNAPPDF_URL=https://pdf.invoicing.co/ungoogled.tar
+
+dl "$URL" "$SRC/invoiceninja-$VERSION.tar.gz"
+dl "$SNAPPDF_URL" "$SRC/snappdf-ungoogled.tar"
+
+echo "$INVOICE_SHA256  $SRC/invoiceninja-$VERSION.tar.gz" | sha256sum --check --strict
+echo "$SNAPPDF_SHA256  $SRC/snappdf-ungoogled.tar" | sha256sum --check --strict
