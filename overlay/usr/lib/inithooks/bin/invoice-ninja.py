@@ -3,6 +3,8 @@
 
 Option:
     --pass=     unless provided, will ask interactively
+    --pass-stdin
+                read the password from standard input
     --api-secret=
                 when email, pass and domain are set, but not api-secret,
                 it will be skipped. If api-secret unset plus any one or
@@ -54,7 +56,7 @@ def check_str(text):
 def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], "h",
-                                       ['help', 'pass=', 'email=',
+                                       ['help', 'pass=', 'pass-stdin', 'email=',
                                         'api-secret=', 'domain='])
     except getopt.GetoptError as e:
         usage(e)
@@ -68,6 +70,8 @@ def main():
             usage()
         elif opt == '--pass':
             password = val
+        elif opt == '--pass-stdin':
+            password = sys.stdin.readline().rstrip('\r\n')
         elif opt == '--api-secret':
             api_secret = val
         elif opt == '--email':
@@ -176,8 +180,8 @@ def main():
     m.execute('UPDATE ninja.users SET email=%s WHERE id=1;', (email,))
 
     subprocess.run(['turnkey-artisan', 'optimize'],
-                   capture_output=True, text=True)
-    subprocess.run(['systemctl', 'restart', 'apache2'])
+                   capture_output=True, text=True, check=True)
+    subprocess.run(['systemctl', 'restart', 'apache2'], check=True)
 
 
 if __name__ == "__main__":
