@@ -63,7 +63,10 @@ install -d -o root -g root -m 0755 \
 tar --no-same-owner -xf "$SRC/snappdf-ungoogled.tar" \
     -C "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled"
 rm -f "$SRC/snappdf-ungoogled.tar"
-echo ungoogled > "$WEBROOT/vendor/beganovich/snappdf/versions/revision.txt"
+# Snappdf uses this value verbatim as a directory name; a trailing newline
+# makes its Chromium executable lookup point at a nonexistent path.
+printf '%s' ungoogled \
+    > "$WEBROOT/vendor/beganovich/snappdf/versions/revision.txt"
 chmod 0755 \
     "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled/chrome-linux/chrome" \
     "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled/chrome-linux/chrome_crashpad_handler"
