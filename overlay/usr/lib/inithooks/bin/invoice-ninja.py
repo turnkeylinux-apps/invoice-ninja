@@ -163,7 +163,7 @@ def main():
                 line = f"APP_URL={url}\n"
             elif line.startswith('MAIL_FROM_ADDRESS='):
                 line = f"MAIL_FROM_ADDRESS='ninja@{email_domain}'\n"
-            elif line.startswith('API_SECRET='):
+            elif line.startswith('API_SECRET=') and (api_secret or interactive):
                 line = f"API_SECRET={api_secret}\n"
             lines.append(line)
     with open(conf, 'w') as fob:
