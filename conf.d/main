@@ -45,13 +45,14 @@ sed -i "/^QUEUE_CONNECTION/ a INTERNAL_QUEUE_ENABLED=false" $CONF
 
 install -d -o www-data -g www-data -m 0750 /var/log/invoiceninja
 
-# Keep executable application and configuration code outside the web-service
-# write boundary. Laravel needs only its cache/storage paths writable.
+# Keep executable application code outside the web-service write boundary.
+# Laravel's installer must update .env during setup; relock it immediately
+# after setup has finished below.
 chown -R root:root "$WEBROOT"
 find "$WEBROOT" -type d -exec chmod 0755 {} +
 find "$WEBROOT" -type f -exec chmod 0644 {} +
 chown -R www-data:www-data "$WEBROOT/storage" "$WEBROOT/bootstrap/cache"
-chown root:www-data "$CONF"
+chown www-data:www-data "$CONF"
 chmod 0640 "$CONF"
 
 # Install the separately pinned Snappdf Chromium payload and make it the
@@ -119,6 +120,11 @@ sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
 
 # Add API_SECRET to .env so it's ready to go - inithook will offer to set it (if left blank it's ignored)
 sed -i "/^APP_URL/a API_SECRET=" $CONF
+
+# Setup is complete: configuration is readable by the web service but only
+# writable by root in the shipped appliance.
+chown root:www-data "$CONF"
+chmod 0640 "$CONF"
 
 # test PDF generation
 cd $WEBROOT
