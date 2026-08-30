@@ -24,7 +24,7 @@ for line in open("/var/www/invoiceninja/.env"):
         secret = line.split("=", 1)[1].strip().strip("\"\047")
 request = urllib.request.Request(
     "https://127.0.0.1/api/v1/login",
-    data=json.dumps({"email": "admin@example.com", "password": sys.stdin.read()}).encode(),
+    data=json.dumps({"email": "admin@example.invalid", "password": sys.stdin.read()}).encode(),
     headers={"Content-Type": "application/json", "X-API-SECRET": secret,
              "Host": "www.example.com"},
 )
