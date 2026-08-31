@@ -37,6 +37,15 @@ Credentials *(passwords set at first boot)*
 
 - Invoice Ninja: username is email - set at firstboot
 
+Updates
+-------
+
+Invoice Ninja and its Snappdf Chromium payload are pinned and checksum-verified
+at appliance build time. Application code and ``.env`` are root-owned; only
+Laravel's ``storage`` and ``bootstrap/cache`` runtime paths are writable by the
+web service. Upgrade Invoice Ninja under root supervision and restore this
+ownership boundary before returning the service to production.
+
 .. _Invoice Ninja: https://www.invoiceninja.org/
 .. _extensively doumented: https://docs.invoiceninja.com/index.html
 .. _TurnKey Core: https://www.turnkeylinux.org/core

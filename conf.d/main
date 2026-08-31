@@ -12,14 +12,15 @@ ADMIN_LNAME="Linux"
 SRC=/usr/local/src
 WEBROOT=/var/www/invoiceninja
 CONF=$WEBROOT/.env
+VERSION=v5.13.36
 
 LOC_SHARE=/usr/local/share
 LOC_BIN=/usr/local/bin
 
 # install Invoice Ninja
 mkdir -p $WEBROOT
-tar -xvf $SRC/invoiceninja.tar.gz -C $WEBROOT/
-rm -f $SRC/invoiceninja.tar.gz
+tar -xzf "$SRC/invoiceninja-$VERSION.tar.gz" -C "$WEBROOT"
+rm -f "$SRC/invoiceninja-$VERSION.tar.gz"
 
 service mysql start
 
@@ -42,13 +43,33 @@ sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/g" $CONF
 sed -i "s/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=database/g" $CONF
 sed -i "/^QUEUE_CONNECTION/ a INTERNAL_QUEUE_ENABLED=false" $CONF
 
-touch $WEBROOT/worker.log
-chown -R www-data:www-data $WEBROOT
-find $WEBROOT -type d -exec chmod 755 {} \;
+install -d -o www-data -g www-data -m 0750 /var/log/invoiceninja
 
-# install snappdf library and make it default for PDF generation
+# Keep executable application code outside the web-service write boundary.
+# Laravel's installer must update .env during setup; relock it immediately
+# after setup has finished below.
+chown -R root:root "$WEBROOT"
+find "$WEBROOT" -type d -exec chmod 0755 {} +
+find "$WEBROOT" -type f -exec chmod 0644 {} +
+chown -R www-data:www-data "$WEBROOT/storage" "$WEBROOT/bootstrap/cache"
+chown www-data:www-data "$CONF"
+chmod 0640 "$CONF"
+
+# Install the separately pinned Snappdf Chromium payload and make it the
+# default PDF generator without invoking Snappdf's moving downloader.
 chmod +x "$WEBROOT/vendor/bin/snappdf"
-runuser -l www-data -s /bin/bash -c "$WEBROOT/vendor/bin/snappdf download"
+install -d -o root -g root -m 0755 \
+    "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled"
+tar --no-same-owner -xf "$SRC/snappdf-ungoogled.tar" \
+    -C "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled"
+rm -f "$SRC/snappdf-ungoogled.tar"
+# Snappdf uses this value verbatim as a directory name; a trailing newline
+# makes its Chromium executable lookup point at a nonexistent path.
+printf '%s' ungoogled \
+    > "$WEBROOT/vendor/beganovich/snappdf/versions/revision.txt"
+chmod 0755 \
+    "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled/chrome-linux/chrome" \
+    "$WEBROOT/vendor/beganovich/snappdf/versions/ungoogled/chrome-linux/chrome_crashpad_handler"
 sed -i "\|^PDF_GENERATOR|s|=.*|=snappdf|" $CONF
 
 # set up turnkey-artisan
@@ -60,10 +81,11 @@ turnkey-artisan migrate --force
 turnkey-artisan optimize
 
 sleep 10
-CURL="curl -c /tmp/cookie -b /tmp/cookie"
-TOKEN=$($CURL http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
+COOKIE=/run/invoice-ninja-setup.cookie
+CURL=(curl -c "$COOKIE" -b "$COOKIE")
+TOKEN=$("${CURL[@]}" http://localhost/setup 2>/dev/null | grep csrf-token | sed 's|^.*content="\([a-zA-Z0-9]*\)".*$|\1|')
 sleep 10
-$CURL 'http://localhost/setup' -X POST --data-raw "\
+"${CURL[@]}" 'http://localhost/setup' -X POST --data-raw "\
 _token=$TOKEN\
 &url=https%3A%2F%2Fexample.com\
 &https=on\
@@ -83,6 +105,7 @@ _token=$TOKEN\
 &password=$ADMIN_PASS\
 &terms_of_service=on\
 &privacy_policy=on"
+rm -f "$COOKIE"
 
 cat > /etc/cron.d/invoice-ninja  <<EOF
 # TurnKey Invoice Ninja cron job
@@ -101,10 +124,16 @@ sed -i "s/^MAIL_FROM_NAME=.*/MAIL_FROM_NAME='TurnKey Invoice Ninja'/g" $CONF
 # Add API_SECRET to .env so it's ready to go - inithook will offer to set it (if left blank it's ignored)
 sed -i "/^APP_URL/a API_SECRET=" $CONF
 
+# Setup is complete: configuration is readable by the web service but only
+# writable by root in the shipped appliance.
+chown root:www-data "$CONF"
+chmod 0640 "$CONF"
+
 # test PDF generation
 cd $WEBROOT
-./vendor/bin/snappdf convert --html "<h1>Hello world!</h1>" test.pdf
-rm test.pdf
+runuser -u www-data -- ./vendor/bin/snappdf convert \
+    --html "<h1>Hello world!</h1>" storage/test.pdf
+rm -f storage/test.pdf
 
 service mysql stop
 service apache2 stop
